@@ -73,10 +73,13 @@ def login():
         if success:
             return redirect(url_for('product.product'))
     return render_template('login.html', form=form)
-
-@auth_bp.route('/logout')
+@auth_bp.route('/dashboard')
+@login_required
+def dashboard():
+    return "Welcome to your dashboard, {}!".format(current_user.username)
 @login_required
 def logout():
     message = logout_user_controller()
     flash(message, 'info')
     return redirect(url_for('auth.login'))
+    
