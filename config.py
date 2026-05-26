@@ -1,0 +1,5 @@
+SECRET_KEY='your-secure-secret-key-here'
+MYSQL_HOST='localhost'
+MYSQL_USER='root'
+MYSQL_PASSWORD='aashuNEXTdoor2007_'
+MYSQL_DATABASE='pasalify_db'
