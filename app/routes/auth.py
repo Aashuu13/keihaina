@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, app, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
@@ -8,6 +8,7 @@ from flask_limiter.util import get_remote_address
 import re
 
 from app.controllers.auth import register_user, login_user_controller, logout_user_controller
+from app.auth import login_required, admin_required    
 
 auth_bp = Blueprint('auth', __name__)
 
