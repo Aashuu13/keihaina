@@ -1,25 +1,23 @@
-from flask import flash, redirect, url_for, request, render_template
-from flask_login import login_user, logout_user, current_user
-
-from app.controllers.basecontroller import BaseController
+from flask import flash, redirect, url_for, request
+from flask_login import login_user, logout_user, login_required, current_user
 from app.models.user import User, users_db
+from flask import session, flash, redirect, url_for, render_template, request
+from app.controllers.basecontroller import BaseController
+from app.models.user import User
 
 
 class AuthController(BaseController):
-    """
-    Authentication Controller
-    """
-
+    '''Controller for user authentication'''
     def __init__(self):
         super().__init__()
 
     def register(self):
-
         if self.is_logged_in():
+            if session.get("user_role") == "admin":
+                return redirect(url_for("admin.dashboard"))
             return redirect(url_for("auth.dashboard"))
 
         if request.method == "POST":
-
             name, email = self.get_form_data("name", "email")
             password = request.form.get("password", "")
 
@@ -36,62 +34,33 @@ class AuthController(BaseController):
                 flash("Password must be at least 6 characters.", "danger")
                 return render_template("register.html")
 
-            # Create user
-            new_user = User(
-                name=name,
-                email=email,
-                password=password,
-                role="user"
-            )
+            # Create a new User object and check email
+            new_user = User(name=name, email=email, password=password, role="user")
 
             if new_user.email_exists():
                 flash("Email already exists.", "danger")
                 return redirect(url_for("auth.register"))
 
+            # Save to database
             new_user.save()
-
-            flash("Registration successful! Please login.", "success")
-            return redirect(url_for("auth.login"))
+            return self.flash_and_redirect(
+                "Registration successful! Please login.", "success", "auth.login"
+            )
 
         return render_template("register.html")
-
-    def dashboard(self):
-        return "Welcome to your dashboard, {}!".format(current_user.name)
+     
 
 
 def login_user_controller(username, password, remember=False):
-    
-
+    """Login user"""
     user = User.get_by_username(username)
-
     if user and user.verify_password(password):
         login_user(user, remember=remember)
         return True, "Login successful!"
-
     return False, "Invalid username or password!"
-def register_user(username, email, password):
-
-    # Check if username/email exists
-    existing_user = User.get_by_username(username)
-
-    if existing_user:
-        return False, "Username already exists!"
-
-    # Create new user
-    new_user = User(
-        name=username,
-        email=email,
-        password=password,
-        role="user"
-    )
-
-    # Save user
-    new_user.save()
-
-    return True, "Registration successful!"
 
 
 def logout_user_controller():
-
+    """Logout user"""
     logout_user()
     return "Logged out successfully!"
